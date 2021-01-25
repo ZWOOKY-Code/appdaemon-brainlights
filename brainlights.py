@@ -76,8 +76,7 @@ class BrainLights(hass.Hass):
         self.__single_threading_lock = threading.Lock()
         
         # return
-       
- 
+
         try:
             self._somebody_is_home = self.args.get('somebody_is_home_entity', 'off')
             self._lux_entity = self.args.get('lux_entity', 'off')
@@ -256,10 +255,32 @@ class BrainLights(hass.Hass):
             else:
                 self.log("Do nothing we are not listening on this scene ({})".format(attribute['service_data']['entity_id']) ,level="INFO")
 
+    def Light_Update_Slider( self , entity_brightness , attribute , old , new , kwargs):
+#        # self.log('Update {} - todo:{}'.format( entity , new ) )
+        entity = entity_brightness.replace('input_number.min_brightness_', 'light.', 1)
+        self.log('light slider {} -> {}'.format( entity_brightness , entity ) )
+        self.Light_Update( entity , 'brightness' ) 
+
+    def Light_Update_Slider_bad(self,event_name,data, kwargs):
+        ##########################################################################
+        # a service has been called get the platform from the entity
+        # and trigger the component app that belongs to the platform and component
+        ##########################################################################
+        platform, entityname = self.split_entity(data["entity_id"])
+        app = "{}_{}".format(platform,kwargs["entity_settings"]["component_type"])
+        #self.log("{} triggered for {}".format(app,data["service_data"]["entity_id"]))
+        if kwargs["entity_settings"]["component_type"] != "grapje":
+            func = self.get_app(app)
+            func.triggered(data["entity_id"], kwargs["entity_settings"], data["service"], data )
+        else:
+            new_data = {"entity_id": data["entity_id"],"entity_settings": kwargs["entity_settings"], "data": data}
+            self.call_service("ad_{}_{}/{}".format(platform, kwargs["entity_settings"]["component_type"], data["service"]), namespace="ad_entities", **new_data)
+        self.Light_Update( data["entity_id"] , 'brightness' ) # on or off
 
     def Light_Update_Transition( self ,param ): # old and new have no meaning
         # self.log('Transition {} - todo:{}'.format( param['entity'] , param['todo'] ) )
         self.Light_Update( param['entity'] , param['todo'] ) # on or off
+
 
     def Light_Update_State( self , entity , attribute , old , new , kwargs):
         # self.log('Update {} - todo:{}'.format( entity , new ) )
@@ -278,7 +299,7 @@ class BrainLights(hass.Hass):
         # self.log('Light Update ... {}' .format(todo) , level='INFO')
         # update brightness mired kelvin etc based on our internal statusses of the lightes
             
-        if todo == 'check' or todo == 'on':
+        if todo == 'check' or todo == 'on' or todo == 'brightness':
             upd_brightness = 0
             upd_mired_kelvin = 0
             upd_needed = 0
@@ -289,7 +310,7 @@ class BrainLights(hass.Hass):
 
             if (self._light_entities_arr[ entity ]['curr_state'] == 'on' or todo=='on') and self._light_entities_arr[ entity ]['type'] == 'switch' :
                 self.turn_on( self._light_entities_arr[ entity ]['entity'] )               
-            elif (self._light_entities_arr[ entity ]['curr_state'] == 'on' or todo=='on') and self._light_entities_arr[ entity ]['type'] == 'light' :
+            elif self._light_entities_arr[ entity ]['type'] == 'light' and ( (self._light_entities_arr[ entity ]['curr_state'] == 'on' or todo=='or' ) or ( self._light_entities_arr[ entity ]['curr_state'] == 'on' and todo=='brightness' ) ):
                 # self.log('STATUS-1: b:{} k:{} m:{}'.format( self._brightness_value , self._kelvin_value , self._mired_value  ) )
                 if self._light_entities_arr[ entity ]['bright_type'] == 255:
                     upd_brightness = self._brightness_value
@@ -341,8 +362,19 @@ class BrainLights(hass.Hass):
                         if self._light_entities_arr[ entity ]['brightness_curr'] == upd_brightness:
                             upd_needed = 0
                             special_text = ' min brightness no update '
-                        
-                        
+                    new_brightness = -99.99
+                    if self._light_entities_arr[ entity ]['type'] == 'light':
+                        try:
+                            entity_slider = self._light_entities_arr[ entity ]['entity'].replace('light.','input_number.min_brightness_', 1)
+                            new_brightness = int( self.get_state( entity_slider ) )
+                            if upd_brightness < new_brightness:
+                                if new_brightness != -99.99:
+                                    upd_brightness = new_brightness
+                                    upd_needed = 1
+                        except (TypeError, ValueError):
+                            dummy = 1
+                            self.log('ERROR: {}{}'.format( TypeError, ValueError ) )
+                               
                 # self.log('STATUS-2: upd_brightness:{} >0 or upd_mired_kelvin:{}>0' .format( upd_brightness , upd_mired_kelvin  ) , level='INFO')
                 if upd_needed ==1:
                     if self._light_entities_arr[ entity ]['bright_type'] == 255:
@@ -454,6 +486,8 @@ class BrainLights(hass.Hass):
             self.log('STATUS SCENE: {}'.format( self._light_entities_arr[ entity ]['entity'] ) )
         
         elif todo == 'state':
+            dummy = 1
+        elif todo == 'brightness':  # should be handled if light was on!!!
             dummy = 1
         
         else:
@@ -624,6 +658,25 @@ class BrainLights(hass.Hass):
                                                         , 'brightness_last'   :  curr_brightness
                                                         , 'transition_handle' :  'na'
                                                         }
+
+                    if entity_splitter[ 0 ] =='light':
+                        self.set_state(           "input_number.min_brightness_" + entity_splitter[ 1 ]
+	                                                                     , state = int(entity_items[ 9 ]) 
+		                                                            , attributes = { 
+                                                                 "friendly_name" : '' + entity_splitter[ 1 ]
+                                                         ,             "initial" : int(entity_items[ 9 ])
+                                                         ,                "mode" : 'slider'
+                                                         ,            "editable" : False
+                                                         ,                 "min" : 1
+                                                         ,                 "max" : self._brightness_entity_max
+                                                         ,                "step" : 1
+                                                         , "unit_of_measurement" : 'l'
+                                                                                 })
+                                                
+                        self.listen_state( self.Light_Update_Slider , "input_number.min_brightness_" + entity_splitter[ 1 ] )
+                        # self.listen_event(self.Light_Update_Slider, event = "my_call_service", entity_id = entityID, entity_settings = entity_settings)
+                                                
+                    
                     # self.log('Entity added: {}'.format( self._light_entities_arr[ entity_items[0] ] ) , level='INFO' )
             except (TypeError, ValueError):
                 self.log("could not add entity {} to array" . format( entity_items[0] ) , level="ERROR")
@@ -631,7 +684,7 @@ class BrainLights(hass.Hass):
         self.log('CreateLightArray end')
         return
         # end for
-  	                                    
+ 	                                    
 
     def is_motion_sensor_disabled(self):
         if type(self._disable_motion_sensor_entities) is list:
