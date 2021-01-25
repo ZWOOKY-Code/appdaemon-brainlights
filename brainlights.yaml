@@ -1,0 +1,195 @@
+---
+
+
+WZimmer:
+  module: brainlights
+  class: BrainLights
+  somebody_is_home_entity: group.family
+  lux_entity: sensor.ms1
+  lux_limit: 30
+  brightness_entity: sensor.sl_daellikon_brightness
+  brightness_entity_max: 255
+  circad_entity: sensor.sl_daellikon_kelvin
+  circad_entity_type: kelvin
+  motion_entities: 
+    - binary_sensor.ms1
+    - binary_sensor.ms3
+  disable_motion_sensor_entities: 
+    - input_boolean.global_motion_no_switch_light
+    - input_boolean.disable_wohnzimmer_motion
+  disable_timer_entities: 
+    - input_boolean.disable_wohnzimmer_timer
+  scene_timeout: 120
+  scene_listen_entities:
+    - scene.scene_reset_all_empty
+    - scene.scene_sensor_wohnzimmer_1
+    - scene.scene_sensor_wohnzimmer_2
+    - scene.hell
+    - scene.tv_blau
+    - scene.tromso_mit_licht_unten_blau_rot_dunkel
+    - scene.tromso_mit_licht_unten
+    - scene.sideboard_bild_turkis
+    - scene.tracey_lights
+    - scene.scene_wohnzimmer_esszimmer_1
+    - scene.scene_wohnzimmer_esszimmer_2
+
+  light_entities:
+     # Params:
+     # 0 name
+     # 1 Timeout in Minutes without motion or trigger or scene
+     # 2 Transition off in Seconds
+     # 3 trigger/motion on off - upd       on: turn light on+upd / off: turn light off / upd on motion / -: normal timer without motion and update
+     # 4 on motion time-frame for on       - or 00:00-00:00 =24h / 06:00-09:00|17:00-21:00    
+     # 5 circad-type                                       kelvin or mired or just brgt 
+     # 6 brightness-type 100 or 255 
+     # 7 brightness in Scene ... yes or no                           
+     # 8 min brightness in Scene 10                           
+     # 9 min brightness out of Scene 18                           
+                            
+     - light.wand;60;25;on;00:00-00:00;mired;255;yes;5;23
+     - light.sideboard_rechts;60;20;on;00:00-00:00;mired;255;yes;10;18
+     - light.sideboard_links;60;20;on;00:00-00:00;mired;255;yes;10;18
+     - light.wohnzimmer_rechts;60;25;on;00:00-00:00;rgb;255;yes;5;23
+     - light.wohnzimmer_links;60;25;on;00:00-00:00;rgb;255;yes;5;23
+     - light.wohnzimmer_licht_1;30;12;upd;00:00-00:00;mired;255;yes;5;8
+     - light.wohnzimmer_licht_2;15;12;upd;00:00-00:00;mired;255;yes;5;8
+     - light.wohnzimmer_licht_3;60;12;on;00:00-00:00;mired;255;yes;5;15
+     - light.wohnzimmer_licht_4;15;12;upd;00:00-00:00;mired;255;yes;5;8
+     - switch.lichtvorhang;60;0;upd;18:00-02:00;mired;255;yes;5;100
+     - switch.lichterkette;180;0;upd;05:00-08:00;mired;255;yes;5;100
+
+
+EZimmer:
+  module: brainlights
+  class: BrainLights
+  somebody_is_home_entity: group.family
+  lux_entity: sensor.ms2
+  lux_limit: 30
+  brightness_entity: sensor.sl_daellikon_brightness
+  brightness_entity_max: 255
+  circad_entity: sensor.sl_daellikon_kelvin
+  circad_entity_type: kelvin
+  motion_entities: 
+    - binary_sensor.ms2
+  disable_motion_sensor_entities: 
+    - input_boolean.global_motion_no_switch_light
+    - input_boolean.disable_esszimmer_motion
+  disable_timer_entities: 
+    - input_boolean.disable_esszimmer_timer
+  scene_timeout: 120
+  scene_listen_entities:
+    - scene.scene_reset_all_empty
+    - scene.scene_sensor_esszimmer_1
+    - scene.scene_sensor_esszimmer_98
+    - scene.scene_sensor_esszimmer_99
+  light_entities:
+     - light.esszimmer_1;60;25;on;00:00-00:00;mired;255;yes;10;10
+     - light.esszimmer_2;30;25;on;17:00-21:00;mired;255;yes;10;10
+     - light.esszimmer_3;10;25;upd;00:00-00:00;mired;255;yes;10;10
+     - light.esszimmer_4;10;25;upd;00:00-00:00;mired;255;yes;10;10
+     - light.kerze;20;40;on;22:00-06:00;rgb;255;yes;5;10
+
+Garden:
+  module: brainlights
+  class: BrainLights
+  somebody_is_home_entity: group.family
+  lux_entity: sensor.ms1
+  lux_limit: 30
+  brightness_entity: sensor.sl_daellikon_brightness
+  brightness_entity_max: 255
+  circad_entity: sensor.sl_daellikon_kelvin
+  circad_entity_type: kelvin
+  motion_entities: 
+    - binary_sensor.ms1
+    - binary_sensor.ms3
+  disable_motion_sensor_entities: 
+    - input_boolean.global_motion_no_switch_light
+    - input_boolean.disable_garden_motion
+  disable_timer_entities: 
+    - input_boolean.disable_garden_timer
+  scene_timeout: 120
+  scene_listen_entities:
+    - scene.scene_reset_all_empty
+  light_entities:
+     - switch.baum;180;0;on;18:00-21:00;mired;255;yes;10;10
+
+SZimmer_l:
+  module: brainlights
+  class: BrainLights
+  somebody_is_home_entity: group.family
+  lux_entity: sensor.ms8
+  lux_limit: 30
+  brightness_entity: sensor.sl_daellikon_brightness
+  brightness_entity_max: 255
+  circad_entity: sensor.sl_daellikon_kelvin
+  circad_entity_type: kelvin
+  motion_entities: 
+    - binary_sensor.ms8
+  disable_motion_sensor_entities: 
+    - input_boolean.global_motion_no_switch_light
+    - input_boolean.disable_schlafzimmer_motion
+  disable_timer_entities: 
+    - input_boolean.disable_schlafzimmer_timer
+  scene_timeout: 120
+  scene_listen_entities:
+    - scene.scene_reset_all_empty
+    - scene.scene_sensor_schlafzimmer_1
+    - scene.scene_sensor_schlafzimmer_2
+    - scene.scene_sensor_schlafzimmer_98
+    - scene.scene_sensor_schlafzimmer_99
+  light_entities:
+     - light.bett_boden_links;10;25;on;00:00-00:00;mired;255;yes;10;10
+     - light.bett_kissen;2;25;on;08:00-22:00;mired;255;yes;10;3
+     - light.schlafzimmer_decke_1;5;25;upd;00:00-00:00;mired;255;yes;3;10
+     - light.schlafzimmer_decke_2;5;25;upd;00:00-00:00;mired;255;yes;3;10
+
+SZimmer_r:
+  module: brainlights
+  class: BrainLights
+  somebody_is_home_entity: group.family
+  lux_entity: sensor.ms5
+  lux_limit: 30
+  brightness_entity: sensor.sl_daellikon_brightness
+  brightness_entity_max: 255
+  circad_entity: sensor.sl_daellikon_kelvin
+  circad_entity_type: kelvin
+  motion_entities: 
+    - binary_sensor.ms5
+  disable_motion_sensor_entities: 
+    - input_boolean.global_motion_no_switch_light
+    - input_boolean.disable_schlafzimmer_motion
+  disable_timer_entities: 
+    - input_boolean.disable_schlafzimmer_timer
+  scene_timeout: 120
+  scene_listen_entities:
+    - scene.scene_reset_all_empty
+    - scene.scene_sensor_schlafzimmer_1
+    - scene.scene_sensor_schlafzimmer_2
+    - scene.scene_sensor_schlafzimmer_98
+    - scene.scene_sensor_schlafzimmer_99
+  light_entities:
+     - light.bett_boden;10;25;on;00:00-00:00;mired;255;yes;10;10
+
+
+Storage:
+  module: brainlights
+  class: BrainLights
+  somebody_is_home_entity: group.family
+  lux_entity: sensor.ms6
+  lux_limit: 30
+  brightness_entity: sensor.sl_daellikon_brightness
+  brightness_entity_max: 255
+  circad_entity: sensor.sl_daellikon_kelvin
+  circad_entity_type: kelvin
+  motion_entities: 
+    - binary_sensor.ms6
+  disable_motion_sensor_entities: 
+    - input_boolean.global_motion_no_switch_light
+    - input_boolean.disable_storagezimmer_motion
+  disable_timer_entities: 
+    - input_boolean.disable_storagezimmer_timer
+  scene_timeout: 120
+  scene_listen_entities:
+    - scene.scene_reset_all_empty
+  light_entities:
+     - switch.smart_plug_2;5;0;on;00:00-00:00;mired;255;yes;10;10
